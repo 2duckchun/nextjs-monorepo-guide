@@ -27,7 +27,21 @@ pnpm create next-app@latest 프로젝트명
 √ Would you like to customize the default import alias (@/*)? ... No
 ```
 
-### 3. 패키지로 관리할 공용 코드들 분석
+### 3. 루트 레벨에 필수 종속성 설치
+
+```sh
+pnpm install next@latest react@latest react-dom@latest typescript@latest @types/node @types/react @types/react-dom tailwindcss@latest autoprefixer@latest postcss@latest -w
+```
+
+- next, react, react-dom : next 프로젝트 또는 react로 만들어진 라이브러리에 필수
+- @types/node, @types/react, @types/react-dom : 타입 에러 회피용
+- tailwind, autoprefixer, postcss : tailwind용
+
+본인의 경우에는 루트에 모든 종속성을 설치할 것이며, 모두 최신화된 것으로 유지할 예정임.
+
+next cli를 이용해 프로젝트를 셋팅했다면 프로젝트 내에 각각 next, react, react-dom도 셋팅 되어있을건데 루트에 모든 종속성을 설치하면 굳이 모든 프로젝트의 node_modules에서 해당 파일들을 가지고있지 않아도 됨. 다만 나같은 경우에는 모든 프로젝트를 next로 만드는 상황이므로 지금과 같은 셋팅이 유효한 것이고, vue나 next, vite 등 프로젝트 별로 라이브러리나 번들러를 다르게 사용하고 있는 경우에는 각각 프로젝트별로 종속성을 설치하는게 옳음.
+
+### 4. 패키지로 관리할 공용 코드들 분석 후 분리
 
 - 확실히 공통적으로 사용될 수 있는 코드들만 패키지로 관리하는 것이 좋을 것 같음. 어거지로 모든 것을 넣다간 오히려 관리 비용이 증가할 것임.
 
@@ -35,7 +49,7 @@ pnpm create next-app@latest 프로젝트명
 
 - 설정 외 라이브러리나 ui 등은 개발하면서 패키지인지 앱스인지 판단하면 될 것 같음.
 
-#### 3-1. tsconfig 패키지화
+#### 4-1. tsconfig 패키지화
 
 - turborepo의 기본 설정에 따라 `packages/typescrpt-config` 에 이미 셋팅이 어느정도 되고 있음.
 
@@ -105,6 +119,77 @@ pnpm add -D @repo/typescript-config
 ```
 
 > 개발 의존성 설치를 하지 않아도 동작을 하긴 함. 최상단 node_modules에 @repo가 존재하므로 사실상 바로 extends 해도 상관 없음.
+
+#### 4-2 tailwind 패키지화
+
+먼저 `packages/tailwind-config` 디렉토리를 만들어 준 뒤 package.json을 생성함. 필자는 pnpm을 사용하고 있으므로 아래 키워드로 package.json을 생성해주고 있음.
+
+```sh
+pnpm init
+```
+
+package.json는 아래와 같이 설정해줌.
+
+```json
+// package.json
+{
+  "name": "@repo/tailwind-config",
+  "version": "0.0.0",
+  "main": "./index.ts",
+  "license": "MIT"
+}
+```
+
+이후 index.ts 파일을 만들어 내부에 아래와 같이 넣어준다.
+
+```ts
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;
+```
+
+이후 루트 디렉토리에 해당 디펜던시를 전역으로 설치해준다.
+
+```sh
+pnpm i @repo/tailwind-config -w
+```
+
+셋팅 후에 각 프로젝트의 tailwind.config.ts에 해당 테일윈드를 import해서 디스트럭쳐링 문법을 통해 재사용한다.
+
+```ts
+import type { Config } from "tailwindcss";
+
+import sharedConfig from "@repo/tailwind-config";
+
+const config: Config = {
+  ...sharedConfig,
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  plugins: [],
+};
+export default config;
+```
 
 ## Using this example
 
