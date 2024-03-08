@@ -79,3 +79,26 @@ Learn more about the power of Turborepo:
 - [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
 - [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
 - [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+
+## 단계
+
+1. turborepo 설치
+
+```sh
+pnpm dlx create-turbo@latest
+```
+
+2. 기존 apps에 있는 디렉토리를 지우고 새로운 next app 설치
+
+```sh
+pnpm create next-app@latest 프로젝트명
+```
+
+```
+√ Would you like to use TypeScript? ... Yes
+√ Would you like to use ESLint? ... Yes
+√ Would you like to use Tailwind CSS? ... Yes
+√ Would you like to use `src/` directory? ... Yes
+√ Would you like to use App Router? (recommended) ... Yes
+√ Would you like to customize the default import alias (@/*)? ... No
+```
