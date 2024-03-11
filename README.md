@@ -13,14 +13,6 @@
 
 **대상 독자**는 모노레포를 구현해보려다가 지치신 분들이다. 지친자여 나에게로 오라.
 
-## 주요 프레임워크, 라이브러리
-
-**모노레포 툴** : pnpm, turborepo
-
-**주요 공통 패키지** : next.js, tailwind, shadcn/ui
-
-툴이 명시되어 있기는한데 그냥 본인이 사용하고 싶은 것 사용해도 된다.
-
 ---
 
 ## 모노레포란 무엇인가? (GPT 曰)
@@ -64,9 +56,28 @@ ChatGPT가 가로되,
 
 설명이 좀 그로테스크한데 모로가도 서울만 가면 됐다고 대놓고 추상적인 부분은 추상적으로만 이해하자.
 
-## 설치 가이드
+## 사용할 라이브러리/프레임워크
 
-## Installation
+이번 모노레포 구현에 사용할 기술들이다.
+
+- **pnpm** : 패키지 매니저 npm과 비슷하나, npm보다 성능면에서 좋음
+- **Turborepo** : 모노레포 빌드 시스템
+- **Next.js** : 국밥1
+- **Tailwind CSS** : 국밥2
+- **Typescript** : 국밥3
+- **shadcn/ui** : 재사용가능한 컴포넌트 컬렉션. ※ **모노레포로 구성하기 까다로움**
+
+## pnpm
+
+### pnpm 특징
+
+## turborepo
+
+### turborepo 특징
+
+## next.js
+
+
 
 Install my-project with npm
 
@@ -74,7 +85,9 @@ Install my-project with npm
 npm install my-project
 cd my-project
 ```
-    
+
+
+---
 
 ### 1. turborepo 설치
 
