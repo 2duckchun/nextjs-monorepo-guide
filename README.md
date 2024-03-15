@@ -349,6 +349,8 @@ export default config;
 
 #### 린트 설계(전역 설정)
 
+pnpm i -D eslint eslint-config-next eslint-plugin-tailwindcss prettier --filter eslint-config
+
 한번의 린트 설정으로 여러개의 프로젝트를 관리할 수 있다는 점이 어찌보면 모노레포의 가장 큰 장점(?)이지 않을까 싶다. 린트 설정도 차근차근 하다보면 어렵지 않다.
 
 1. 만약 모든 프로젝트에 아래의 린트와 프리티어를 적용하고 싶다고 가정해보자.
