@@ -2,11 +2,9 @@
 
 레퍼런스가 하도 없어 직접 작성하는 모노레포 가이드이다.
 
-사실 본인의 상황에 100% 맞는 모노레포 관련 레퍼런스는 찾기 어렵다. 모노레포는 사랑과 우정같은 추상적인 개념이며 세부 구현 방법은 사용자마다 달라질 수 밖에 없기 때문이다.
+사실 본인의 상황에 100% 맞는 모노레포 관련 레퍼런스는 찾기 어렵다. 모노레포는 사랑과 우정같은 추상적인 개념이며 세부 구현 방법은 사용자마다 달라질 수 밖에 없기 때문. 그래서 각자 상황에 맞는 구현을 하는 것이 올바른 방향인데, 기본적으로 디펜던시와 패키지, 린트, 타입스크립트, 테일윈드 등 설정(config)에 대한 이해도가 어느정도 받쳐줘야하기 때문에 진입장벽이 상당히 높다. 즉, 모노레포 자체는 별게 없지만 막상 구현하려고 보면 처리해야할 것들이 고구마 줄기마냥 우수수 뽑혀나온다. 하지만 겁먹을 것 없다. 하나씩 처리하면 될 일이다.
 
-즉, 모노레포를 제대로 사용하려면 모노레포라는 거푸집 안에 각자의 니즈를 녹여 직접 구조를 구성해야 한다.
-
-하여 이 가이드에서는 모노레포를 자유자재로 구현하기 위해 개발자가 알아야하는 키워드 및 사고 방식과 간단한 구현 설계를 공유한다.
+하여 이 가이드에서는 모노레포를 자유자재로 구현하기 위해 알아야하는 사전지식 및 키워드를 공부할 수 있는 레퍼런스를 공유하고, 모노레포를 구현하기 위한 사고 방식 및 간단한 구현 실증 사례를 제공한다.
 
 ## 목차
 
@@ -20,7 +18,6 @@
    - [패키지 구조 설계](#패키지-구조-설계)
      - [루트 패키지 설계](#루트-패키지-설계)
      - [apps에 프로젝트 추가](#apps에-프로젝트-추가)
-     - [타입스크립트 패키지 만들기](#타입스크립트-패키지-만들기)
      - [테일윈드 패키지 만들기](#테일윈드-패키지-만들기)
      - [린트 설계(전역 설정)](#린트-설계전역-설정)
      - [UI 패키지 만들기](#ui-패키지-만들기)
@@ -162,39 +159,40 @@ packages:
 
 루트 패키지에 어떤 것을 추가할 지 본인의 니즈를 구체화해보자.
 
-- 예시
-
-  1. 내가 주력으로 사용하는 프레임워크는 next이다. 모노레포 내 모든 프로젝트는 next를 사용할 것이다.
-  2. next은 react와 react-dom에 의존한다.
-  3. typescript는 필수이다.
-  4. 간편하고 빠른 스타일 설정을 위해 tailwind를 사용할 것이다. tailwind 설정에는 autoprefixer, postcss가 필수적이다.
-  5. 공용 UI 패키지도 next, tailwind, typescript를 사용할 것이다.
-  6. 따라서 next, react, react-dom, tailwind, autoprefixer, postcss를 전역에 설치할 것이다.
-  7. 필요한 @types도 설치해야 한다.
+- 나는 nextjs를 주력으로 사용한다. next는 react와 react-dom에 의존한다.
+- 타입스크립트는 필수이다.
+- **경험에 의해** @types 관련 디펜던시가 루트 워크스페이스에 설치되어야 함을 알고 있다.
 
 따라서 루트 패키지에 설치할 디펜던시는 아래와 같다.
 
 ```sh
+// next, react, 타입스크립트 관련 의존성
 pnpm install next@latest react@latest react-dom@latest typescript@latest -w
 ```
 
 ```sh
+// 타입 관련 의존성
 pnpm install -D @types/node @types/react @types/react-dom -w
 ```
 
-(pnpm의 경우에는 루트 디렉토리에 디펜던시를 설치할 때 `-w` 플래그를 붙여주어야 한다.)
+```sh
+// 테일윈드 의존성
+pnpm install -D tailwindcss postcss autoprefixer -w
+```
 
-여기서부터는 아무 생각없이 따라오게되면 분명히 망하게 된다. 내가 어떤 행위를 하고 있는 것인지 제대로 인지한 상태에서 차근차근 따라오도록 한다.
+> pnpm 루트 워크스페이스에 디펜던시를 설치할 때는 `-w` 플래그를 붙여주어야 한다.
+
+> 테일윈드나 린트같은 설정 파일도 루트 패키지로 설계할 수는 있으나, 린트 오류나 자동완성(autocomplete)이 원하는대로 동작하지 않는 현상이 발생할 수 있고, 추후 확장성에도 문제가 생긴다. 따라서 테일윈드나 린트는 루트 패키지로 만들지 않는 것이 좋다.
 
 #### apps에 프로젝트 추가
 
-모노레포 구축을 위해 프로젝트를 2개 정도 추가해보자. 프로젝트는 컨벤션 상으로 apps 디렉토리에 추가하고 관리한다. 터보레포 스캐폴딩으로 모노레포를 구성했다면 디폴트 프로젝트가 2개 (`apps/docs`와 `apps/web`) 있을 것인데, 필요없으니 모두 지워준 후 새로운 프로젝트를 설치한다. 나는 `/apps` 경로로 이동한 후 CLI에
+모노레포 구축을 위해 프로젝트를 2개 정도 추가해보자. 프로젝트는 컨벤션 상 `apps` 디렉토리에서 관리한다. 터보레포 스캐폴딩으로 모노레포를 구성했다면 디폴트 프로젝트인 `apps/docs`와 `apps/web`가 있을 것인데 필요없으니 모두 지워준 후 새로운 프로젝트를 설치한다.
 
 ```sh
 pnpm create next-app@latest
 ```
 
-를 입력하여 next.js 프로젝트를 2개 (`my-app-1`, `my-app-2`) 설치하였다. 세부사항 셋팅은 아래와 같이 진행했다.
+나는 next.js 프로젝트 `my-app-1`, `my-app-2`을 설치하였다. 세부사항 셋팅은 아래와 같이 진행했다.
 
 ```
 √ Would you like to use TypeScript? ... Yes
@@ -205,92 +203,23 @@ pnpm create next-app@latest
 √ Would you like to customize the default import alias (@/*)? ... No
 ```
 
-만약 수동으로 프로젝트를 구축해야한다면 기존의 폴리레포에서 프로젝트를 만들던 방식으로 `apps`에 디렉토리를 만들어 직접 구축하면 된다.
+위의 설정으로 프로젝트를 설치하면 프로젝트마다 테일윈드와 린트 설정이 자동적으로 설정이 되어 있을 것이다. 프로젝트별 설정은 지우지 말고, 그 설정을 기반으로 확장성 있는 테일윈드와 린트를 구축해야 한다.
 
-#### 타입스크립트 패키지 만들기
+> 만약 수동으로 프로젝트를 구축해야한다면 기존의 폴리레포에서 프로젝트를 만들던 방식으로 `apps`에 직접 구축하면 된다.
 
-앞서, create-next-app 명령어를 통해 next.js를 기반으로 한 2개의 프로젝트 스캐폴딩을 만들었다. 두 프로젝트는 패키지 명 외에 모든 것들이 같을 것이다. 코드의 통일성을 위해 합칠것들은 합쳐보자. 먼저 각 프로젝트의 타입스크립트 설정을 `packages workspace`에 묶어보자.
-
-터보레포 스캐폴딩으로 모노레포를 구성하면 `packages` 디렉토리에 `typescript-config`, `eslint-config`, `ui` 패키지가 기본적으로 생성된다.
-
-![image](https://github.com/2duckchun/nextjs-monorepo-guide/assets/92588154/c9c6369d-4f20-4b19-a0ff-b1461781ef85)
-
-기본 설정을 사용하지 않겠다면 모두 지워도 상관없다. 일단 나는 타입스크립트 패키지의 next.js 설정만 바꾸기를 원하므로, next.js 프로젝트의 `tsconfig.json` 내용을 복사해서 `packages/typescript-config/nextjs.json`에 붙여넣기 했다.
-
-```json
-// packages/typescript-config/nextjs.json
-{
-  "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
-}
-```
-
-(만약 위의 코드가 어떤 역할을 하는지 잘 모른다면 `tsconfig`의 정의와 프로퍼티에 대해 한번 훑어보는게 좋다. 나는 이 [블로그](https://inpa.tistory.com/entry/TS-%F0%9F%93%98-%ED%83%80%EC%9E%85%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-tsconfigjson-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0-%EC%B4%9D%EC%A0%95%EB%A6%AC)를 참조하였다.)
-
-패키지는 어려운 개념이 아니다. 코드와 함께 `package.json`이 존재하는 디렉토리 자체가 패키지가 된다. 즉 우리는 타입스크립트 설정에 관련된 패키지를 방금 막 만든 것이다. 만든 패키지를 프로젝트에 설치해보자.
-
-적용은 `my-app-1` 프로젝트를 기준으로 할 것이다. `apps/my-app-1` 디렉토리에 이동한 후 CLI에 아래 명령어를 입력한다.
-
-```sh
-pnpm i -D @repo/typescript-config
-```
-
-**위 명령어는 워크스페이스 내 패키지 네임이 `@repo/typescript-config` 인 것을 추적하여 프로젝트 패키지에 개발용 디펜던시로 등록한다.**
-
-명령어가 정상적으로 동작했다면 프로젝트의 `package.json`에 아래와 같이 `devDependencies`에 추가되었을 것이다.
-
-```json
-{
-  // ...
-  "devDependencies": {
-    "@repo/typescript-config": "workspace:^"
-    // ...
-  }
-}
-```
-
-패키지 설치가 완료되었다면 프로젝트의 `tsconfig.json` 설정을 아래와 같이 바꿔준다.
-
-```json
-// apps/my-app-1/tsconfig.json
-{
-  "extends": "@repo/typescript-config/nextjs.json", // nextjs.json 확장
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
-}
-```
-
-이로써 `packages/typescript-config/nextjs.json`의 코드를 일부 사용하면서도 프로젝트 별로 세부적인 셋팅을 할 수 있게 되었다. 만약 공용 설정을 바꿔야한다면 패키지 내 코드를 수정하면 될 것이다.
+#### css 패키지 만들기
 
 #### 테일윈드 패키지 만들기
 
 디자인 관련 설정도 모노레포 패키지를 통해 효과적으로 관리할 수 있다.
 
 나는 모든 프로젝트에 테일윈드를 사용할 것이므로 테일윈드 관련 설정을 패키지로 분리할 것이다. 먼저 `packages` 디렉토리에 `tailwind-config` 디렉토리를 생성한 뒤 `package.json`와 `index.ts`를 생성한다.
+
+```
+
+pnpm install @repo/tailwind-config --filter my-app-1
+
+```
 
 `package.json`은 아래와 같이 작성한다.
 

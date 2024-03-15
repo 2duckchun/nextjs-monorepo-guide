@@ -8,11 +8,10 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@repo/tailwind-config": "workspace:^"
+  },
   "devDependencies": {
-    "autoprefixer": "^10.0.1",
-    "postcss": "^8",
-    "tailwindcss": "^3.3.0",
     "eslint": "^8",
     "eslint-config-next": "14.1.3"
   }
