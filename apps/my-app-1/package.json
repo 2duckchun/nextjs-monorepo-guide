@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@repo/styles-config": "workspace:^",
     "@repo/tailwind-config": "workspace:^"
   },
   "devDependencies": {
