@@ -219,6 +219,8 @@ pnpm create next-app@latest
 
 pnpm install @repo/tailwind-config --filter my-app-1
 
+pnpm install @repo/styles-config --filter my-app-1
+
 ```
 
 `package.json`은 아래와 같이 작성한다.
@@ -713,7 +715,11 @@ export * from "./src/shadcn/ui/button";
 
 ---
 
-## 부록(혼자서도 잘해요)
+## 부록
+
+### 버그 사례
+
+- 테일윈드 인텔리센스 고장
 
 혼자서도 잘해요 시리즈
 
