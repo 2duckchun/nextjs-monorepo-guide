@@ -386,6 +386,10 @@ pnpm i -D eslint eslint-config-next eslint-plugin-tailwindcss prettier -w
 
 #### UI 패키지 만들기
 
+pnpx tailwindcss init -p
+
+pnpm install @repo/ui --filter my-app-1
+
 이번에는 `packages` 워크스페이스에 공용 UI 패키지를 만들어보자. 아마 이 가이드에서 가장 까다로운 작업이 되지 않을까 싶다. 공용 UI는 요즘 인기가 좋은 `shadcn/ui`(https://ui.shadcn.com/)으로 구축할 예정이다.
 
 `shadcn/ui`는 패키지로 제공되지 않는 리액트 기반 **컴포넌트**이다. 따라서 모노레포에서 이용하려면 직접 패키지로 말아야 한다.
