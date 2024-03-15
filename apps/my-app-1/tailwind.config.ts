@@ -6,7 +6,6 @@ const config: Config = {
     require("@repo/tailwind-config/shadcn"),
   ],
   content: [
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "../../packages/ui/**/*.{js,ts,jsx,tsx,mdx}",
   ],

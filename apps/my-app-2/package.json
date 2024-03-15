@@ -8,7 +8,12 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@repo/eslint-config": "workspace:^",
+    "@repo/styles-config": "workspace:^",
+    "@repo/tailwind-config": "workspace:^",
+    "@repo/ui": "workspace:^"
+  },
   "devDependencies": {
     "eslint": "^8",
     "eslint-config-next": "14.1.3"

@@ -1,5 +1,9 @@
 {
   "name": "@repo/styles-config",
   "version": "0.0.0",
-  "license": "MIT"
+  "license": "MIT",
+  "exports": {
+    "./shadcn": "./shadcn.css",
+    "./shared-styles": "./shared-styles.css"
+  }
 }
