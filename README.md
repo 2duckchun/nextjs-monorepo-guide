@@ -123,9 +123,9 @@
 
 터보레포로 프로젝트를 인스톨하면 next.js를 기반으로 한 모노레포 스캐폴딩이 제공된다. 제공된 스캐폴딩의 구조를 직접 뜯어서 모노레포 구현법을 스스로 체득하는 것도 권장할만한 방법이다.
 
-그렇다면 터보레포로 쓸만한 모노레포를 구현해보자. 먼저 터보레포의 [Create a new monorepo](https://turbo.build/repo/docs/getting-started/create-new)를 참조하면서 가이드를 이어나가자.
+그렇다면 터보레포를 이용하여 쓸만한 모노레포를 구현해보자. 터보레포의 [Create a new monorepo](https://turbo.build/repo/docs/getting-started/create-new)를 참조하면서 가이드를 이어나가면 좋다.
 
-먼저 아래 명령어를 이용해 모노레포 스캐폴딩을 설치해보자.
+먼저 아래 명령어를 이용해 모노레포 스캐폴딩을 설치한다.
 
 ```sh
 pnpm dlx create-turbo@latest
@@ -140,9 +140,10 @@ pnpm dlx create-turbo@latest
 
 ![image](https://github.com/2duckchun/nextjs-monorepo-guide/assets/92588154/a0b61913-226b-487f-86e0-add5039aa814)
 
-생성된 모노레포 스캐폴딩을 보면 apps, packages 디렉토리를 비롯한 파일들이 하나의 코드베이스에 묶여있는 것을 확인할 수 있다. 두 디렉토리는 모노레포의 `로컬 워크스페이스(local workspace)`에 해당한다. 루트 디렉토리의 `pnpm-workspace.yaml` 을 열어보면 yaml 문법으로 두 디렉토리가 `workspace`로 선언되어 있는 것을 확인할 수 있다. 루트 디렉토리는 `루트 워크스페이스(root workspace)`가 된다.
+생성된 모노레포 스캐폴딩을 보면 `apps`, `packages` 디렉토리를 비롯한 파일들이 하나의 코드베이스에 묶여있는 것을 확인할 수 있다. 두 디렉토리는 모노레포의 `로컬 워크스페이스(local workspace)`에 해당한다. 루트 디렉토리의 `pnpm-workspace.yaml` 을 열어보면 yaml 문법으로 두 디렉토리가 `workspace`로 선언되어 있는 것을 확인할 수 있다. 루트 디렉토리는 `루트 워크스페이스(root workspace)`가 된다.
 
-```sh
+```yaml
+// pnpm-workspace.yaml
 packages:
   - "apps/*"
   - "packages/*"
@@ -172,7 +173,8 @@ packages:
 `package.json`에서 가장 중요한 것은 `name` 프로퍼티라고 할 수 있다. 패키지 이름이 곧 디펜던시명이 되기 때문이다. 또한 pnpm의 `--filter` 명령어를 걸 때의 기준점이 되기도 한다.
 
 > pnpm --filter package-name command
-> 설명 : --filter는 명령어를 특정 패키지의 하위집합에만 적용시킬 수 있게 해줍니다.
+> 
+> --filter는 명령어를 특정 패키지의 하위집합에만 적용시키는 기능을 한다.
 >
 > > (ex) pnpm --filter my-app-1 install something
 
@@ -196,7 +198,7 @@ packages:
 
 - 나는 nextjs를 주력으로 사용한다. next는 react와 react-dom에 의존한다.
 - 타입스크립트는 필수이다.
-- **경험에 의해** @types 관련 디펜던시가 루트 워크스페이스에 설치되어야 함을 알고 있다.
+- @types 관련 디펜던시를 루트 워크스페이스에 설치해서 타입 에러를 최대한 피하고 싶다.
 
 따라서 루트 패키지에 설치할 디펜던시는 아래와 같다.
 
@@ -276,7 +278,7 @@ pnpm --filter @repo/eslint-config install -D eslint-config-next eslint-plugin-ta
 
 `@repo/eslint-config`에만 eslint 관련 디펜던시를 설치할 것이므로 `--filter`를 활용한다. (`--filter`는 내가 지정한 패키지에만 명령어를 실행시킨다.)
 
-디펜던시 추가가 완료되었따면 `package.json`를 손볼 차례다.
+디펜던시 추가가 완료되었다면 `package.json`를 손볼 차례다.
 
 ```json
 {
@@ -457,7 +459,7 @@ import "@repo/styles-config/shadcn";
 
 아직 처리할 것이 남았다. 우리가 스타일 패키지에 작성한 css에는 `@base` 등과 같은 비표준 키워드가 있다. 이것에 관련된 처리를 해주지 않고 프로젝트 전역 css에 패키지를 `import`하면 빌드 단계에서 오류가 난다.
 
-우리는 이 문제를 `postcss.config.js`를 이용해 쉽고 간편하게 해결할 수 있다. 테일윈드 [공식문서](https://tailwindcss.com/docs/using-with-preprocessors#build-time-imports)를 한번 살펴보자. 우리가 추가할 기능은 모듈별로 분리한 css와 메인 css를 빌드 타임에 결합할 수 있게 만들어준다.
+우리는 이 문제를 `postcss.config.js`를 이용해 쉽고 간편하게 해결할 수 있다. 간단한 사용 원리에 대해서는 [여기](https://tailwindcss.com/docs/using-with-preprocessors#build-time-imports)를 한번 살펴보자. 우리가 추가할 기능은 모듈별로 분리한 css와 메인 css를 빌드 타임에 결합할 수 있게 만들어준다.
 
 공식문서에서 설명하는대로 `postcss-import` 플러그인을 `my-app-1` 프로젝트에 설치한 후 `postcss.config.js`에 플러그인으로 추가해주자.
 
@@ -476,10 +478,11 @@ module.exports = {
 };
 ```
 
-이로써 스타일 패키지 적용에 대한 모든 사전 작업이 끝난다. 해당 스타일 패키지를 프로젝트에 의존성으로 추가한 후 메인 css에 필요한 스타일을 `import` 해보자.
+이로써 스타일 패키지 적용에 대한 모든 사전 작업이 끝났다. 해당 스타일 패키지를 프로젝트에 의존성으로 추가한 후 메인 css에 필요한 스타일을 `import` 해보자.
 
 ```css
 /* apps/my-app-1/src/app/globals.css */
+
 /* import문은 최상단에 있어야 한다. */
 @import "@repo/styles-config/shadcn";
 @import "@repo/styles-config/palette";
@@ -620,9 +623,9 @@ module.exports = {
 }
 ```
 
-테일윈드 패키지는 `tailwind.config.ts`에 추가할 것이므로, `css`에 `import`하는 것과 같은 `exports` 전처리를 굳이 하지 않아도 편하게 이용할 수 있다. 본인의 입맛따라 `package.json`을 구성해보자.
+테일윈드 패키지는 `tailwind.config.ts`에 추가할 것이므로, `css`에 `import`하는 것과 같이 `exports` 전처리를 굳이 하지 않아도 편하게 이용할 수 있다. 본인의 입맛따라 `package.json`을 구성해보자.
 
-여기까지 되었다면 테일윈드 스타일 설정이 끝난 것이다. 만든 패키지는 my-app-1 프로젝트의 tailwind.config.ts에 `preset`으로 사용할 것이다. 먼저 테일윈드 스타일 디펜던시를 프로젝트에 추가한다.
+여기까지 되었다면 테일윈드 스타일 설정이 끝난 것이다. 만든 패키지는 `my-app-1` 프로젝트의 `tailwind.config.ts`에 `preset`으로 사용할 것이다. 먼저 테일윈드 스타일 디펜던시를 프로젝트에 추가한다.
 
 ```sh
 pnpm --filter my-app-1 install @tailwind-config
@@ -654,13 +657,13 @@ const config: Config = {
 export default config;
 ```
 
-[tailwind](https://tailwindcss.com/docs/presets) 공식문서에서 `preset`의 사용 이유와 사용 방법을 자세히 확인할 수 있다. 이로써 테일윈드 설정도 마무리되었다.
+[tailwind](https://tailwindcss.com/docs/presets) 공식문서에서 `preset`를 쓰는 이유와 사용 방법을 자세히 확인할 수 있다. 이로써 테일윈드 설정도 마무리되었다.
 
 #### UI 패키지 설계
 
-이번에는 공용 UI 패키지를 만들어보자. 아마 이 가이드에서 가장 까다로운 작업이 되지 않을까 싶다. 공용 UI는 요즘 인기가 좋은 `shadcn/ui`(https://ui.shadcn.com/)으로 구축할 예정이다.
+이번에는 공용 UI 패키지를 만들어보자. 아마 이 가이드에서 가장 까다로운 작업이 되지 않을까 싶다. 공용 UI는 요즘 인기가 좋은 `shadcn/ui`(https://ui.shadcn.com/) 으로 구축할 예정이다.
 
-`shadcn/ui`는 패키지로 제공되지 않는 **리액트 기반 컴포넌트**이므로 모노레포에서 사용하려면 UI를 먼저 구축한 다음 구축한 UI로 패키지를 만들어야 한다. 앞서 진행했던 스타일 설정 및 테일윈드 설정과 절차가 비슷하다.
+`shadcn/ui`는 패키지로 제공되지 않는 **리액트 기반 컴포넌트**이므로 모노레포에서 사용하려면 UI를 먼저 구축한 다음, 구축한 UI로 패키지를 만들어야 한다.
 
 먼저 기존 스캐폴딩에 의해 생성된 `./packages/ui` 디렉토리 내부의 파일들을 전부 지운 뒤, `package.json`을 다시 만들자.
 
@@ -678,13 +681,13 @@ pnpm init
 }
 ```
 
-이제 이 패키지에 `shadcn/ui`를 설치하기 위해 셋팅을 조금 해야한다. `shadcn/ui`는 react, 테일윈드, postcss, autoprefixer에 의존성을 가진다. 이 의존성 파일들을 `./packages/ui`에 우선적으로 설치해줘야하지만 우리는 앞서 루트 패키지를 설계할 때 미리 다 깔아두었었다. 따라서 별도의 의존성 설치 과정을 거치지 않고 바로 테일윈드 셋팅을 해줄 수 있다. `/packages/ui` 디렉퇴에 위치한 다음 아래 명령어를 입력해주면 해당 패키지 위치에 테일윈드가 셋팅된다.
+이제 이 패키지에 `shadcn/ui`를 설치하기 위해 셋팅을 조금 해야한다. `shadcn/ui`는 react, 테일윈드, postcss, autoprefixer에 의존성을 가진다. 이 의존성 파일들을 `./packages/ui`에 우선적으로 설치해줘야하지만 우리는 앞서 필요한 것들을 루트 패키지를 설계할 때 미리 다 깔아두었었다. 따라서 별도의 의존성 설치 과정을 거치지 않고 바로 테일윈드 셋팅을 해줄 수 있다. `/packages/ui` 디렉토리에 위치한 다음 아래 명령어를 입력해주면 해당 패키지 위치에 테일윈드가 셋팅된다.
 
 ```sh
 pnpx tailwindcss init -p
 ```
 
-위 명령어를 입력하면 해당 패키지 위치에 `tailwind.config.js`와 `postcss.config.js`가 생성된다. 여기에 생성된 테일윈드 관련 설정은 건드릴 필요가 없다. 여기에 작성된 UI들은 프로젝트마다 설정된 `tailwind.config.ts`의 영향을 받게 될 것이기 때문이다.
+위 명령어를 입력하면 해당 패키지 위치에 `tailwind.config.js`와 `postcss.config.js`가 생성된다. 여기에 생성된 테일윈드 관련 설정은 건드릴 필요가 없다. 여기에 작성된 UI들은 프로젝트마다 설정된 `tailwind.config.ts`의 영향을 받게 될 것이기 때문이다. 즉 여기 설정된 `tailwind.config.js`는 `ui` 스타일에 아무런 영향을 주지 않는다. 물론 그렇다고해서 지워버리면 `shadcn/ui` cli를 사용할 수 없게되니 편의성을 위해 그냥 남겨놓자.
 
 이제 타입스크립트 셋팅을 해주자. ui 디렉토리에 `tsconfig.json`을 생성한 뒤 아래와 같이 코드해주었다.
 
@@ -719,8 +722,6 @@ pnpx tailwindcss init -p
 
 `paths`의 `@ui/`는 `./src/*`를 의미하며, `shadcn/ui`을 설치할 때 경로 문제를 해결하기 위해 필요한 부분이다.
 
-테일윈드와 tsconfig.json의 셋팅이 끝났다면 `shadcn/ui`를 설치하자.
-
 테일윈드와 `tsconfig.json` 셋팅이 끝났다면 본격적으로 `shadcn/ui`를 설치해보자.
 
 `packages/ui` 경로에 아래 CLI 명령어를 입력해주자.
@@ -752,7 +753,7 @@ pnpm dlx shadcn-ui@latest init
 > > `@ui/shadcn`은 `./src/shadcn`가 되고
 > > `@ui/lib/utils`는 `./src/lib/utils`가 된다.
 
-셋팅이 되었다면 button 컴포넌트를 다운로드 받아보자. `packages/ui` 경로에 위치한 다음, 아래 명령어를 입력해본다.
+셋팅이 되었다면 button 컴포넌트를 다운로드 받아보자. `packages/ui` 경로에 위치한 다음, 아래 명령어를 입력한다.
 
 ```sh
 pnpm dlx shadcn-ui@latest add button
@@ -762,9 +763,9 @@ button 컴포넌트 다운로드가 잘 됐다면 디렉토리 구조가 아래�
 
 ![image](https://github.com/2duckchun/nextjs-monorepo-guide/assets/92588154/117180a7-c3fe-41a5-b090-a2c6c8ff8756)
 
-이후에는 `shadcn/ui`의 기본 css와 테일윈드 셋팅을 해주어야 하는데 사전에 프로젝트에 `shadcn/ui` 대한 설정을 모두 마쳤으므로 별도로 셋팅할 필요가 없다.
+이후에는 `shadcn/ui`의 기본 css와 테일윈드 셋팅을 해주어야 하는데 사전에 프로젝트에 `shadcn/ui` 대한 설정을 모두 마쳤으므로 별도로 셋팅할 필요는 없다.
 
-다만 shadcn/ui는 스타일 표현을 위해 반드시 테일윈드 컴파일링이 필요하다는 것을 인지하도록 하자. 이를 위해 프로젝트 내 `tailwind.config.ts`의 `content` 경로가 일부 수정될 필요가 있다.
+다만 shadcn/ui는 스타일 표현을 위해 반드시 테일윈드 컴파일링이 필요하다는 것을 인지하도록 하자. 이를 위해 프로젝트 내 `tailwind.config.ts`의 `content` 경로가 일부 수정되어야 한다.
 
 ```ts
 // apps/my-app-1/tailwind.config.ts
@@ -773,7 +774,7 @@ const config: Config = {
   // ...
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "../../packages/ui/**/*.{js,ts,jsx,tsx,mdx}",
+    "../../packages/ui/**/*.{js,ts,jsx,tsx,mdx}", // 이 부분이 중요하다.
   ],
   // ...
 };
@@ -781,11 +782,11 @@ const config: Config = {
 export default config;
 ```
 
-테일윈드는 content의 배열 내 경로를 탐색하여 테일윈드 스타일을 브라우저가 인지할 수 있게 파싱한다. 즉, 프로젝트의 테일윈드 설정이 package/ui를 한번 경유해야만 ui에 테일윈드 스타일링이 제대로 먹히게 된다.
+테일윈드는 content의 배열 내 경로를 탐색하여 테일윈드 스타일을 브라우저가 인지할 수 있게 파싱한다. 즉, 프로젝트의 테일윈드 설정이 `package/ui` 를 한번 경유해야만 ui에 테일윈드 스타일링이 제대로 먹히게 된다.
 
 제대로 된 정보는 테일윈드 공식문서 중 [content-configuration](https://tailwindcss.com/docs/content-configuration)을 참조하자.
 
-경로 문제가 하나 더 남아있다. **경로 별칭(alias)**(`/@ui` 등)은 패키지가 특정 프로젝트의 디펜던시 형태로 있을때는 제대로 동작하지 않는다. 우리는 `shadcn/ui`을 패키지로 만들어 사용할 것이므로, 추후 생길 경로 문제를 없애기 위해서 **컴포넌트에 있는 모든 경로 별칭을 빼줄 것이다.**
+경로 문제가 하나 더 남아있다. **경로 별칭(alias)**(`/@ui` 등)은 패키지가 특정 프로젝트의 디펜던시 형태로 있을때는 제대로 동작하지 않는다. 우리는 `shadcn/ui`을 패키지로 만들어 사용할 것이므로, 추후 생길 경로 문제를 없애기 위해 **컴포넌트에 있는 모든 경로 별칭을 빼줄 것이다.**
 
 앞서 다운로드한 `packages/ui/shadcn/ui/button.tsx`에 있는 경로 별칭을 아래와 같이 수정해주자.
 
@@ -819,9 +820,9 @@ UI 패키지에서 새롭게 생성되는 모든 컴포넌트들은 `index.tsx`�
 
 ![image](https://github.com/2duckchun/nextjs-monorepo-guide/assets/92588154/225cfc54-4245-4e13-a656-d052f39139b2)
 
-테일윈드 인텔리센스는 모노레포에서 작업할 때마다 고장난다. 테일윈드 인텔리센스 자체가 VSCode에 종속된 기능이며, 동작 원리가 작업중인 디렉토리에 설치된 `tailwind.config.ts`를 따라 자동완성 기능을 제공하는 것이기 때문에 모노레포 최상단에서 작업을 하게되면 내 프로젝트가 사용하는 config 설정과 다른 자동완성 기능을 제공하게 된다.
+테일윈드 인텔리센스는 모노레포에서 작업할 때마다 고장나는 것 같다. 또 테일윈드 인텔리센스 자체가 VSCode에 종속된 기능이며, 동작 원리가 작업중인 디렉토리에 설치된 `tailwind.config.ts`를 따라 자동완성 기능을 제공하는 것이기 때문에 모노레포 최상단에서 작업을 하게되면 내 프로젝트가 사용하는 테일윈드 config 설정과 다른 자동완성 기능을 제공하게 된다.
 
-따라서 프로젝트별로 셋팅된 테일윈드에 따른 자동완성 기능을 수행하기 위해서는 프로젝트 폴더 자체로 진입해서 VSCode를 열어야 한다.
+따라서 프로젝트별로 셋팅된 테일윈드에 따른 자동완성 기능을 사용하기 위해서는 프로젝트 폴더 자체로 진입해서 VSCode를 열어야 한다.
 
 ![inteli](https://github.com/2duckchun/nextjs-monorepo-guide/assets/92588154/06e3dee7-7f79-4be9-9738-93f4101dc6fb)
 
