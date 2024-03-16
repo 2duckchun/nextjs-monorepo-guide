@@ -658,10 +658,6 @@ export default config;
 
 #### UI 패키지 설계
 
-pnpx tailwindcss init -p
-
-pnpm install @repo/ui --filter my-app-1
-
 이번에는 공용 UI 패키지를 만들어보자. 아마 이 가이드에서 가장 까다로운 작업이 되지 않을까 싶다. 공용 UI는 요즘 인기가 좋은 `shadcn/ui`(https://ui.shadcn.com/)으로 구축할 예정이다.
 
 `shadcn/ui`는 패키지로 제공되지 않는 **리액트 기반 컴포넌트**이므로 모노레포에서 사용하려면 UI를 먼저 구축한 다음 구축한 UI로 패키지를 만들어야 한다. 앞서 진행했던 스타일 설정 및 테일윈드 설정과 절차가 비슷하다.
