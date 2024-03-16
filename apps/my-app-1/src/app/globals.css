@@ -1,5 +1,5 @@
 @import "@repo/styles-config/shadcn";
-@import "@repo/styles-config/shared-styles";
+@import "@repo/styles-config/palette";
 
 @tailwind base;
 @tailwind components;

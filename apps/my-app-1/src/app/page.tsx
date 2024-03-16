@@ -13,6 +13,7 @@ export default function Home() {
       <h1 className="flex h-[50px] w-full items-center justify-center bg-app-blue-002/50 py-10 text-4xl font-semibold">
         my-app-1 project
       </h1>
+      <p className="text-balance text-app-blue-002">깔라뿌이니</p>
       <div className="w-[500px]">
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">

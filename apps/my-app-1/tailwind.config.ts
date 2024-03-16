@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   presets: [
-    require("@repo/tailwind-config/extends-shared-colors"),
+    require("@repo/tailwind-config/palette"),
     require("@repo/tailwind-config/shadcn"),
   ],
   content: [

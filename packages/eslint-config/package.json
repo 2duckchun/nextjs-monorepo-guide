@@ -2,9 +2,6 @@
   "name": "@repo/eslint-config",
   "version": "0.0.0",
   "private": true,
-  "files": [
-    "next.json"
-  ],
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",

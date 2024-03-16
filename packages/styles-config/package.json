@@ -4,6 +4,7 @@
   "license": "MIT",
   "exports": {
     "./shadcn": "./shadcn.css",
-    "./shared-styles": "./shared-styles.css"
+    "./palette": "./palette.css",
+    "./test": "./test.css"
   }
 }
